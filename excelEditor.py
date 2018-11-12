@@ -2,19 +2,23 @@ from xlrd import open_workbook
 from xlwt import Workbook
 
 class Arm(object):
-    def __init__(self, hasta_no, protokol_no, gelis_tarihi, adi, soyadi, dogum_tarihi, yasi, poliklik_kodu, servis_adi, kod, tani_adi):
+
+    howMany = 0
+
+    def __init__(self, hasta_no, protokol_no, adi, soyadi, dogum_tarihi, gelis_tarihi, yasi, poliklik_kodu, servis_adi, kod, tani_adi,lol):
         self.id = id
         self.hasta_no = hasta_no
         self.protokol_no = protokol_no
-        self.gelis_tarihi = gelis_tarihi
         self.adi = adi
         self.soyadi = soyadi
         self.dogum_tarihi = dogum_tarihi
+        self.gelis_tarihi = gelis_tarihi
         self.yasi = yasi
         self.poliklik_kodu = poliklik_kodu
         self.servis_adi = servis_adi
         self.kod = kod
         self.tani_adi = tani_adi
+        self.lol = lol
 
     def __str__(self):
         return("Arm object:\n"
@@ -32,8 +36,8 @@ class Arm(object):
                        .format(self.hasta_no, self.protokol_no, self.gelis_tarihi, self.adi, self.soyadi, self.dogum_tarihi, self.yasi, self.poliklik_kodu, self.servis_adi, self.kod, self.tani_adi))
 
 
-wb = open_workbook("/Users/yigitbarkinunal/Downloads/hast 2.xlsx", encoding_override="cp1254")
-yazilacak = open("/Users/yigitbarkinunal/Desktop/hastakayit1.txt", "w", encoding='utf-8')
+wb = open_workbook("/Users/yigitbarkinunal/Downloads/L50 POL.xls", encoding_override="cp1254")
+yazilacak = open("/Users/yigitbarkinunal/Downloads/hastakayit.txt", "w", encoding='utf-8')
 wf = Workbook()
 sheet1 = wf.add_sheet('Sheet 1')
 
@@ -44,6 +48,7 @@ for sheet in wb.sheets():
     items = []
     nolar = []
     rows = []
+
     for row in range(1, number_of_rows):
         values = []
         for col in range(number_of_columns):
@@ -56,11 +61,22 @@ for sheet in wb.sheets():
                 values.append(value)
         item = Arm(*values)
         try:
-            if item.gelis_tarihi != '' and int(item.gelis_tarihi[6:]) < 2013 and item.hasta_no not in nolar:
-                items.append(item)
-                nolar.append(item.hasta_no)
+            if item.gelis_tarihi != '' and int(item.gelis_tarihi[6:]) > 2013:
+                if item.hasta_no not in nolar:
+                    items.append(item)
+                    nolar.append(item.hasta_no)
+                else:
+                    item.howMany = item.howMany + 1
         except:
             pass
+
+
+items.sort(key = howMany)
+for item in items:
+    if item.howMany <= 2:
+        item.remove(item)
+
+
 
 sheet1.write(0,0,"HASTA_NO")
 sheet1.write(0,1,"PROTOKOL_NO")
@@ -104,4 +120,4 @@ for j in range(len(items)):
     yazilacak.write("{} \n".format(item.tani_adi))
 
 yazilacak.close()
-wf.save("/Users/yigitbarkinunal/Desktop/xlwt example.xlsx")
+wf.save("/Users/yigitbarkinunal/Downloads/xlwt example.xlsx")
